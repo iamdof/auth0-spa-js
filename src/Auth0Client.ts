@@ -568,6 +568,7 @@ export default class Auth0Client {
    * @param options
    */
   public async getTokenSilently(options: GetTokenSilentlyOptions = {}) {
+    console.log('getTokenSilently');
     const { ignoreCache, ...getTokenOptions } = {
       audience: this.options.audience,
       ignoreCache: false,
@@ -589,11 +590,13 @@ export default class Auth0Client {
         );
 
         if (cache && cache.access_token) {
+          console.log('in-cache', cache.access_token);
           await lock.releaseLock(GET_TOKEN_SILENTLY_LOCK_KEY);
           return cache.access_token;
         }
       }
 
+      console.log(this.options);
       const authResult = this.options.useRefreshTokens
         ? await this._getTokenUsingRefreshToken(getTokenOptions)
         : await this._getTokenFromIFrame(getTokenOptions);
@@ -790,6 +793,11 @@ export default class Auth0Client {
     // If you don't have a refresh token in memory
     // and you don't have a refresh token in web worker memory
     // fallback to an iframe.
+    console.log('_getTokenUsingRefreshToken begin');
+    console.log(cache);
+    console.log(cache.refresh_token);
+    console.log(this.worker);
+    console.log('_getTokenUsingRefreshToken end');
     if ((!cache || !cache.refresh_token) && !this.worker) {
       return await this._getTokenFromIFrame(options);
     }
